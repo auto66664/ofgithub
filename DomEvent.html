@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>to-do-list</title>
+    <style>
+        /* นำเข้าฟอนต์ภาษาไทยจาก Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;500&display=swap');
+
+        /* กฎเหล็ก! ทำให้ช่องต่างๆ กว้างเท่ากันเป๊ะๆ แม้จะมีการบวกความหนาของขอบหรือ Padding เข้าไป */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f8fafc; /* สีพื้นหลังสว่างๆ สบายตาแบบแอปมือถือ */
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* จัดให้อยู่ตรงกลางจอ */
+            padding: 40px 20px; /* เว้นขอบซ้ายขวาให้เหมือนจอมือถือ */
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* ตกแต่งส่วนกล่องเลือก, กล่องพิมพ์ และปุ่ม Add ให้กว้างเท่ากัน */
+        select, input, button {
+            width: 100%; /* บังคับให้ยาวเต็มพื้นที่ */
+            max-width: 360px; /* ล็อคขนาดให้กว้างสุดเท่าหน้าจอมือถือมาตรฐาน */
+            padding: 14px 16px; /* ขยายความสูงให้เอานิ้วจิ้มง่ายขึ้น (Touch-friendly) */
+            font-size: 16px; /* ขนาดตัวหนังสือชัดเจน */
+            border: 1px solid #cbd5e1;
+            border-radius: 10px; /* ขอบมนสไตล์แอปสมัยใหม่ */
+            outline: none;
+            margin-bottom: 15px; /* เว้นระยะห่างด้านล่างให้เรียงกันสวยๆ */
+            font-family: inherit;
+        }
+
+        /* กล่องเลือก (Dropdown) และช่องพิมพ์ */
+        select, input {
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* เงาบางๆ ให้กล่องดูลอยขึ้นมา */
+        }
+
+        /* ตอนกดพิมพ์ หรือกดเลือกให้ขอบเป็นสีฟ้า */
+        input:focus, select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        /* ปุ่ม Add (ปุ่มหลัก) */
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2); /* เพิ่มเงาสีฟ้าให้ปุ่มดูมีมิติ */
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.97); /* เอฟเฟกต์ปุ่มยุบลงไปเล็กน้อย ตอนเอานิ้วจิ้ม */
+        }
+
+        /* พื้นที่แสดงผลรายชื่อ (#display) */
+        #display {
+            width: 100%;
+            max-width: 360px; /* กว้างเท่ากับช่อง Input ด้านบนเป๊ะ */
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        /* ตกแต่งกล่องรายชื่อที่ถูกสร้างขึ้นมาใหม่ */
+        #display div {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid #3b82f6; /* แถบสีฟ้าด้านซ้าย */
+        }
+
+        #display span {
+            font-size: 15px;
+            font-weight: 500;
+            word-break: break-word; /* ป้องกันคนพิมพ์ชื่อยาวเกินจนทะลุกล่อง */
+        }
+
+        /* --- ปรับแต่งปุ่ม Delete --- */
+        /* ต้องเขียนแก้เอาไว้ ไม่งั้นมันจะโดนบังคับให้ยาว 100% เหมือนปุ่ม Add ครับ */
+        #display button {
+            width: auto; /* คืนค่าความกว้างให้พอดีกับคำว่า Delete */
+            margin-bottom: 0; /* เอาขอบล่างออก */
+            padding: 8px 14px; /* ลดขนาดปุ่มลง */
+            font-size: 14px;
+            background-color: #ef4444; /* สีแดง */
+            box-shadow: none;
+            border-radius: 6px;
+        }
+
+        #display button:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <select id="Gender" >
+        <option value="man">นศท.</option>
+        <option value="women">นศท.หญิง</option>
+    </select>
+    <input type="username" id="name" placeholder="Enter Your Name">
+
+    <button onclick="Add()">Add</button>
+    <div id="display"></div>
+    <script>
+        function Add(){
+            const display = document.getElementById("display");
+
+            const NameValue = document.getElementById("name").value;
+            const GenderValue = document.getElementById("Gender");
+            
+            const itemBox = document.createElement("div"); //Box สำหรับใส่ข้อมูลทั้งหมด
+
+            if(NameValue.trim() === ""){return};
+            
+            let type = "";
+            if(GenderValue.value == "man"){type = "นศท."}
+            else if(GenderValue.value == "women"){type = "นศท.หญิง"}
+            
+            const DataInbox = document.createElement("span");
+            DataInbox.textContent = `${type} ${NameValue}`;
+            
+            //สำหรับแก้ไขข้อมูล
+            const EditBtn = document.createElement("button");
+            EditBtn.textContent = "Edit";
+            EditBtn.style.backgroundColor = "#f59e0b"; EditBtn.style.marginRight = "8px"; 
+
+            EditBtn.onclick = function Edit() {
+                let newName = prompt("แก้ไขชื่อ:", item.name);
+                if (newName !== null && newName.trim() !== "") {
+                    allData[index].name = newName.trim(); // แก้ใน Array
+                    saveData(); // บันทึก
+                }
+            };
+            
+             // ปุ่มลบ
+            const DeleteBtn = document.createElement("button");
+            DeleteBtn.textContent = "Delete";
+            DeleteBtn.className = "deleteBtn";
+
+            DeleteBtn.onclick = function Delete(){  //กดปุ่ม = func ทำงาน
+                itemBox.remove(); //ลบ Box ที่ใส่ข้อมูลทิ้ง 
+            }
+    
+            const btnGroup = document.createElement("span"); //มัดรวม edit & delete ไว้ด้วยกัน
+            btnGroup.appendChild(EditBtn);
+            btnGroup.appendChild(DeleteBtn);
+
+            itemBox.appendChild(DataInbox);
+            itemBox.appendChild(btnGroup);
+            display.appendChild(itemBox); // เปรียบเสมือน Br
+            
+            document.getElementById("name").value = "";
+        }
+    </script>
+</body>
+</html>

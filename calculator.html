@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>บัญชี</title>
+  <style>
+    body{
+      background: linear-gradient(235deg, #d2f2cb 0%, #61cf61 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    header {
+      background: white;
+      position: absolute; left: -5px; top: -5px;
+      padding: 10px;
+      width: 100%;
+      box-shadow: 0 7px 5px rgba(0,0,0,0.2);
+    }
+    .container1 {
+      position: absolute;left: 450px;top: 80px;          
+      background: white;
+      width: 300px;      
+      height: 500px;     
+      border-radius: 15px;
+      box-shadow: 0 7px 7px rgba(0,0,0,0.1);
+      z-index: -1;        /* สำคัญมาก: ดันกล่องไปอยู่ข้างหลัง input */
+    }
+
+    .container2 {
+      position: absolute;left: 80px;top: -210px;          
+      background: white;
+      width: 750px;      
+      height: 500px;     
+      border-radius: 15px;
+      box-shadow: 0 7px 7px rgba(0,0,0,0.1);
+      z-index: -1;        /* สำคัญมาก: ดันกล่องไปอยู่ข้างหลัง input */
+    }
+
+    h1{text-align: center; z-index: 2;color: rgb(4, 92, 206);}
+
+    h2{text-align: center; z-index: 2;color: rgb(0, 0, 0);position: relative;top: -210px;left: 120px;}
+
+    #Display{position: absolute;top: 330px;left: 350px;margin-left: 5px;}
+    
+    .title{ position: absolute;top: 100px;left: 480px;}
+    label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 20px;}
+
+    .number{ position: absolute;top: 200px;left: 480px;}
+    label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 20px;}
+    
+    .date{ position: absolute;top: 300px;left: 480px;}
+    label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 20px;}
+
+    .type{ position: absolute;top: 400px;left: 480px;}
+    label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 20px;}
+    
+    .data{position: relative;left: -400px; top: 10px; }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #dedede;
+      border-radius: 5px;
+      box-sizing: border-box; /* ไม่ให้ padding ดันกล่องขยาย */
+      font-size: 16px;
+    }
+    
+    .submit{
+      position: absolute;top: 500px;left: 480px;width: 240px;height: 40px;
+      background: rgb(80, 223, 75);color: white; border-radius: 10px;
+    }
+    .pay{
+      position: absolute;top: 175px;left: 700px;
+    }
+    .remove{
+      color: rgb(255, 255, 255);
+      background: red;
+      position: absolute;top: 330px;left: 980px;
+    }
+    .TextColorData{
+      color:rgb(0, 0, 0);  
+      word-spacing: 3px;
+      border: 1px solid black;    /* สร้างเส้นขอบทึบ สีดำ ขนาด 1px */
+      padding: 10px;              /* เว้นระยะข้อความข้างในไม่ให้ชิดขอบ */
+      margin-bottom: 10px;        /* เว้นระยะห่างด้านล่างระหว่างกล่อง */
+      border-radius: 5px;         /* (แถม) ทำมุมมนๆ ให้ดูสวยขึ้น */
+      background-color: #f9f9f9;  /* (แถม) ใส่สีพื้นหลังจางๆ ให้ดูมีมิติ */
+      width: fit-content;}
+  </style>
+</head>
+<body>
+    <header>
+      <h1>ระบบบัญชีรายรับรายจ่าย</h1>
+    </header>
+    
+    <div class="data">
+      <div class="container1"></div>
+      <div class="title">
+        <label for="text">รายละเอียด</label>
+        <input id="title" type="text" placeholder="เช่น เงินเดือน, ค่าข้าว...">
+      </div>
+
+      <div class="number">
+        <label for="text">จำนวนเงิน</label>
+        <input id="number" type="number" placeholder="กรอกจำนวนเงิน...">
+      </div>
+    
+      <div class="date">
+        <label for="text">วันที่</label>
+        <input id="date" type="date">
+      </div>
+
+      <div class="type">
+        <label>ประเภท:</label>
+        <select id="type" name="type">
+           <option value="income" id="income">รายรับ</option>
+           <option value="pay" id="pay">รายจ่าย</option>
+        </select>
+      </div>
+    
+      <button class="submit" onclick="submit()">Submit</button>
+    </div>
+    
+    <div class="Display"></div>
+      <div id="Display">
+      <div class="container2"></div>
+      <h2>รายการทั้งหมด</h2>
+    </div>
+    <script>
+       const countremain = []; //นำเลขทุกตัวใน list มาบวกกันหา remain ล่าสุด
+       function submit(){
+          const NewData = document.createElement("div"); //list ของ output ต่างๆ
+          NewData.className = "TextColorData"; //ประกาศตัวแปรใน css
+
+          const display = document.getElementById("Display"); //ตัวแปรที่จะแสดงบน HTML
+
+          // รับ input
+          const title = document.getElementById("title").value;
+          const number = document.getElementById("number").value;
+          const type = document.getElementById("type").value;
+          const calender = document.getElementById("date").value;
+          
+          //ตัวแปรของข้อมูลค่าต่างๆที่จะ output
+          const typeselect =  document.getElementById("type"); //เลือกรายรับ or รายจ่าย
+          let income = ""; //แสดงรายรับครั้งล่าสุด
+          let pay = ""; //แสดงรายจ่ายครั้งล่าสุด
+          let remain = "";
+          
+          //คำนวณหา ยอด remain
+          if(title != "" && number != ""){
+            if(typeselect.value == "income"){ 
+              income += `${number} ฿`;
+              countremain.push(Number(number));
+            }
+            else if(typeselect.value == "pay"){
+              pay += `${number} ฿`
+              countremain.push(Number(number)*-1);
+            }
+          }
+          let total = 0;
+          for (let current of countremain) { //เข้าถึงสมาชิกแต่ละตัวใน countremain
+            total += current; //นำทุกตัวใน list มาบวกกัน
+          }
+          remain = `${total} ฿`
+
+          const HaveincomeInfo = document.createElement("span");
+          const HavepayInfo = document.createElement("span");
+          HaveincomeInfo.textContent = `|${calender} | ${title} | ${income} | - | ${remain}|`;
+          HavepayInfo.textContent = `|${calender} | ${title} | - | ${pay} | ${remain}|`;
+
+          const Delete = document.createElement("button");
+          Delete.className = "Remove"; 
+          Delete.textContent = "ลบ";
+
+          Delete.onclick = function Delete() {
+            NewData.remove(); // ลบกล่อง NewData นี้ทิ้ง
+          };
+          
+          NewData.appendChild(HaveincomeInfo);
+          NewData.appendChild(Delete);
+
+          display.appendChild(NewData);
+          
+       }
+    </script>
+</body>
+</html>

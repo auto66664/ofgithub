@@ -1,0 +1,3 @@
+dollar = int(input())
+dollar = dollar * 35
+print(f"เป็นเงินไทย {dollar} บาท")

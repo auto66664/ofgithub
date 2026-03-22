@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JSON Fetch Tutorial</title>
+</head>
+<body>
+    <h2>รายชื่อพนักงาน</h2>
+    <ul id="list"></ul> <script>
+        // 1. สร้างฟังก์ชันแบบ async (เพื่อให้ใช้คำสั่ง await รอดาวน์โหลดได้)
+        async function loadData() {
+            try {
+                // ขั้นที่ 1: สั่ง fetch ไปเอาไฟล์มา (await คือบอกให้รอจนกว่าจะโหลดเสร็จ)
+                const response = await fetch('employees.json');
+                
+                // ขั้นที่ 2: แกะกล่องข้อมูลที่ได้มา ให้กลายเป็น JavaScript Object (Array)
+                const data = await response.json(); 
+                
+                // ขั้นที่ 3: เอาข้อมูลมาใช้งานได้เลย!
+                console.log("ได้ข้อมูลมาแล้วจ้า:", data);
+                
+                // --- เริ่มการเอาข้อมูลไปโชว์บนหน้าเว็บ ---
+                const listElement = document.getElementById('list');
+                
+                // วนลูปข้อมูลพนักงานแต่ละคน
+                data.forEach(person => {
+                    const li = document.createElement('li');
+                    li.textContent = `คุณ ${person.name} อาชีพ ${person.career} (อายุ ${person.age} ปี)`;
+                    listElement.appendChild(li);
+                });
+
+            } catch (error) {
+                // ถ้ามีอะไรผิดพลาด (เช่น พิมพ์ชื่อไฟล์ผิด) ให้เด้งมาตรงนี้
+                console.error("เกิดข้อผิดพลาดจ้า:", error);
+            }
+        }
+
+        // 2. เรียกใช้งานฟังก์ชัน
+        loadData();
+    </script>
+</body>
+</html>
